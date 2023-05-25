@@ -8,7 +8,7 @@ echo "Writing to \${OUTPUT}"
 ./gatk Funcotator \
      --variant "${variant_vcf}" \
      --reference "${reference_fasta}" \
-     --ref-version "${ref_version}" \
+     --ref-version "${params.ref_version}" \
      --data-sources-path "${data_sources}" \
      --output "\${OUTPUT}" \
      --output-file-format "${params.output_file_format}" \

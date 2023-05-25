@@ -10,7 +10,6 @@ process funcotator {
     input:
         path variant_vcf
         path reference_fasta
-        val ref_version
         path data_sources
 
     output:
@@ -28,12 +27,35 @@ workflow {
     if ( params.outdir == false ){
         error "Must provide --outdir"
     }
+    if ( params.ref_version == false ){
+        error "Must provide --ref_version"
+    }
+    if ( params.data_sources == false ){
+        error "Must provide --data_sources"
+    }
 
     Channel
         .fromPath(
             params.input_vcf.split(',').toList()
         )
         .set {
-            vcf_ch
+            variant_vcf
         }
+
+    reference_fasta = file(
+        "${params.reference_fasta}",
+        checkIfExists: true
+    )
+
+    data_sources = file(
+        "${params.data_sources}",
+        type: 'dir',
+        checkIfExists: true
+    )
+
+    funcotator(
+        variant_vcf,
+        reference_fasta,
+        data_sources
+    )
 }
