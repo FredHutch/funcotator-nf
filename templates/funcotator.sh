@@ -5,7 +5,7 @@ set -e
 OUTPUT="${sample}.funcotated.${params.output_file_format.toLowerCase()}"
 echo "Writing to \${OUTPUT}"
 
-gatk3 Funcotator \
+gatk Funcotator \
      --variant "${variant_vcf}" \
      --reference "${reference_fasta}" \
      --ref-version "${params.ref_version}" \
