@@ -2,7 +2,7 @@
 
 set -e
 
-OUTPUT="${variant_vcf.replaceAll(/.vcf/, '')}.funcotated.${params.output_file_format.toLowerCase()}"
+OUTPUT="${sample}.funcotated.${params.output_file_format.toLowerCase()}"
 echo "Writing to \${OUTPUT}"
 
 ./gatk Funcotator \

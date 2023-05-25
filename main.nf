@@ -8,7 +8,7 @@ process funcotator {
     publishDir "${params.outdir}", mode: 'copy', overwrite: true
 
     input:
-        path variant_vcf
+        tuple val(sample), path(variant_vcf)
         path reference_fasta
         path data_sources
 
@@ -21,8 +21,8 @@ process funcotator {
 }
 
 workflow {
-    if ( params.input_vcf == false ){
-        error "Must provide --input_vcf"
+    if ( params.samplesheet == false ){
+        error "Must provide --samplesheet"
     }
     if ( params.outdir == false ){
         error "Must provide --outdir"
@@ -34,10 +34,21 @@ workflow {
         error "Must provide --data_sources"
     }
 
+    // Parse the sample sheet
     Channel
-        .fromPath(
-            params.input_vcf.split(',').toList()
-        )
+        .from(
+            file(
+                params.samplesheet,
+                checkIfExists: true
+            )
+        ).splitCsv(
+            header: true
+        ).map {
+            r -> [
+                r["sample"], 
+                file(r["vcf"], checkIfExists: true)
+            ]
+        }
         .set {
             variant_vcf
         }
