@@ -12,9 +12,7 @@ gatk Funcotator \
      --data-sources-path "${data_sources}" \
      --output "\${OUTPUT}" \
      --output-file-format "${params.output_file_format}" \
-     --ignore-filtered-variants "${params.ignore_filtered_variants}" \
-     --transcript-selection-mode "${params.transcript_selection_mode}" \
-     --allow-hg19-gencode-b37-contig-matching ${params.allow_hg19_gencode_b37_contig_matching}
+     --transcript-selection-mode "${params.transcript_selection_mode}"
 
 echo Compressing output
 gzip \${OUTPUT}
