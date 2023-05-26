@@ -10,11 +10,11 @@ process fasta_dict {
         path reference_fasta
 
     output:
-        path "${reference_fasta}.dict"
+        path "*.dict"
 
 """#!/bin/bash
 set -e
-gatk CreateSequenceDictionary -R "${reference_fasta}" -O "${reference_fasta}.dict"
+gatk CreateSequenceDictionary -R "${reference_fasta}"
 echo Done
 ls -lahtr
 """
