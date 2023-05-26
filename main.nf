@@ -10,6 +10,7 @@ process funcotator {
     input:
         tuple val(sample), path(variant_vcf)
         path reference_fasta
+        path reference_fasta_index
         path data_sources
 
     output:
@@ -58,6 +59,11 @@ workflow {
         checkIfExists: true
     )
 
+    reference_fasta_index = file(
+        "${params.reference_fasta}.fai",
+        checkIfExists: true
+    )
+
     data_sources = file(
         "${params.data_sources}",
         type: 'dir',
@@ -67,6 +73,7 @@ workflow {
     funcotator(
         variant_vcf,
         reference_fasta,
+        reference_fasta_index,
         data_sources
     )
 }
