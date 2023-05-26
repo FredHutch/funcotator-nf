@@ -32,7 +32,7 @@ process index_vcf {
 
 """#!/bin/bash
 set -e
-gatk IndexFeatureFile -F "${variant_vcf}"
+gatk IndexFeatureFile -I "${variant_vcf}"
 echo Done
 ls -lahtr
 """
