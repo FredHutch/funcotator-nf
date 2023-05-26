@@ -21,12 +21,30 @@ ls -lahtr
 
 }
 
+process index_vcf {
+    container "${params.container__funcotator}"
+
+    input:
+        tuple val(sample), path(variant_vcf)
+
+    output:
+        tuple val(sample), path(variant_vcf), path("*.tbi")
+
+"""#!/bin/bash
+set -e
+gatk IndexFeatureFile -F "${variant_vcf}"
+echo Done
+ls -lahtr
+"""
+
+}
+
 process funcotator {
     container "${params.container__funcotator}"
     publishDir "${params.outdir}", mode: 'copy', overwrite: true
 
     input:
-        tuple val(sample), path(variant_vcf)
+        tuple val(sample), path(variant_vcf), path(variant_vcf_index)
         path reference_fasta
         path reference_fasta_index
         path reference_fasta_dict
@@ -91,8 +109,14 @@ workflow {
         checkIfExists: true
     )
 
+    // Generate the VCF index
+    index_vcf(
+        variant_vcf
+    )
+
+    // Run Funcotator
     funcotator(
-        variant_vcf,
+        index_vcf.out,
         reference_fasta,
         reference_fasta_index,
         fasta_dict.out,
