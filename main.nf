@@ -14,7 +14,9 @@ process fasta_dict {
 
 """#!/bin/bash
 set -e
-gatk CreateSequenceDictionary -R "${reference_fasta}"
+gatk CreateSequenceDictionary -R "${reference_fasta}" -O "${reference_fasta}.dict"
+echo Done
+ls -lahtr
 """
 
 }
