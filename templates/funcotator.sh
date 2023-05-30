@@ -12,7 +12,8 @@ gatk Funcotator \
      --data-sources-path "${data_sources}" \
      --output "\${OUTPUT}" \
      --output-file-format "${params.output_file_format}" \
-     --transcript-selection-mode "${params.transcript_selection_mode}"
+     --transcript-selection-mode "${params.transcript_selection_mode}" \
+     2>&1 > "\${OUTPUT}.log"
 
 echo Compressing output
 gzip \${OUTPUT}

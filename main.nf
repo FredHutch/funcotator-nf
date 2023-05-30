@@ -3,6 +3,44 @@
 // Using DSL-2
 nextflow.enable.dsl=2
 
+process index_vcf {
+    container "${params.container__funcotator}"
+    tag "${sample}"
+
+    input:
+        tuple val(sample), path(variant_vcf)
+
+    output:
+        tuple val(sample), path(variant_vcf), path("*.tbi")
+
+"""#!/bin/bash
+set -e
+gatk IndexFeatureFile -I "${variant_vcf}"
+echo Done
+ls -lahtr
+"""
+
+}
+
+process preindex_vcf {
+    container "${params.container__funcotator}"
+    tag "${sample}"
+
+    input:
+        tuple val(sample), path(variant_vcf)
+
+    output:
+        tuple val(sample), path(variant_vcf), path("*.tbi")
+
+"""#!/bin/bash
+set -e
+gatk IndexFeatureFile -I "${variant_vcf}"
+echo Done
+ls -lahtr
+"""
+
+}
+
 process fasta_dict {
     container "${params.container__funcotator}"
 
@@ -21,27 +59,24 @@ ls -lahtr
 
 }
 
-process index_vcf {
-    container "${params.container__funcotator}"
+process filter_vcf {
+    container "${params.container__python}"
 
     input:
-        tuple val(sample), path(variant_vcf)
+        tuple val(sample), path("input/"), path("input/")
+        path "fasta.dict"
 
     output:
-        tuple val(sample), path(variant_vcf), path("*.tbi")
+        tuple val(sample), path("*.vcf.gz")
 
-"""#!/bin/bash
-set -e
-gatk IndexFeatureFile -I "${variant_vcf}"
-echo Done
-ls -lahtr
-"""
-
+    script:
+        template "filter_vcf.py"
 }
 
 process funcotator {
     container "${params.container__funcotator}"
     publishDir "${params.outdir}", mode: 'copy', overwrite: true
+    tag "${sample}"
 
     input:
         tuple val(sample), path(variant_vcf), path(variant_vcf_index)
@@ -55,6 +90,26 @@ process funcotator {
 
     script:
     template "funcotator.sh"
+
+}
+
+process bgzip {
+    container "${params.container__funcotator}"
+    tag "${sample}"
+
+    input:
+        tuple val(sample), path("input/")
+
+    output:
+        tuple val(sample), path("*.vcf.gz")
+
+    """#!/bin/bash
+set -e
+for fp in input/*.gz; do
+    echo "Block compressing \$fp"
+    gunzip -c \$fp | bgzip -c > \${fp#input/}
+done
+"""
 
 }
 
@@ -109,9 +164,22 @@ workflow {
         checkIfExists: true
     )
 
+    // Index the input file to help with filtering
+    preindex_vcf(variant_vcf)
+
+    // Filter out any variants in regions which aren't
+    // included in the reference genome
+    filter_vcf(
+        preindex_vcf.out,
+        fasta_dict.out.collect()
+    )
+
+    // Convert the filtered VCF to bgzip
+    bgzip(filter_vcf.out)
+
     // Generate the VCF index
     index_vcf(
-        variant_vcf
+        bgzip.out
     )
 
     // Run Funcotator
