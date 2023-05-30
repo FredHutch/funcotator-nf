@@ -13,7 +13,7 @@ gatk Funcotator \
      --output "\${OUTPUT}" \
      --output-file-format "${params.output_file_format}" \
      --transcript-selection-mode "${params.transcript_selection_mode}" \
-     2>&1 > "\${OUTPUT}.log"
+     2>&1 >> "\${OUTPUT}.log" || echo Execution Failed >> "\${OUTPUT}.log"
 
 if [ -s "\${OUTPUT}" ]; then
     echo Compressing output
