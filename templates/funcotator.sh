@@ -15,5 +15,7 @@ gatk Funcotator \
      --transcript-selection-mode "${params.transcript_selection_mode}" \
      2>&1 > "\${OUTPUT}.log"
 
-echo Compressing output
-gzip \${OUTPUT}
+if [ -s "\${OUTPUT}" ]; then
+    echo Compressing output
+    bgzip \${OUTPUT}
+fi
